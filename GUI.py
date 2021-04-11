@@ -140,6 +140,7 @@ def draw_window(width, height, board, gameboard):
     WINDOW.fill(GRAY)
     for rows in range(16):
         for cols in range(16):
+            #Creates gridlines
             if (WINDOW.get_width() > WINDOW.get_height()):
                 pygame.draw.rect(WINDOW, BLACK, ((WINDOW.get_height()/DIM)*rows, (WINDOW.get_height()/DIM)*cols, 
                     (WINDOW.get_height()/DIM), (WINDOW.get_height()/DIM)), 2)
@@ -147,8 +148,10 @@ def draw_window(width, height, board, gameboard):
             else:
                 pygame.draw.rect(WINDOW, BLACK, ((WINDOW.get_width()/DIM)*rows, (WINDOW.get_width()/DIM)*cols, 
                     (WINDOW.get_width()/DIM), (WINDOW.get_width()/DIM)), 2)
+            #Places the bombs
             if (board[rows][cols] == 1):
                 WINDOW.blit(BOMB, (12.5+50*cols, 12.5+50*rows))
+            #Places the flags
             if (gameboard.squares[rows][cols].flag == True):
                 WINDOW.blit(FLAG, (12.5+50*cols, 12.5+50*rows))
     pygame.display.update()
