@@ -2,6 +2,8 @@ import pygame
 import os
 import random
 import math
+import time
+pygame.font.init()
 
 
 class GameBoard:
@@ -36,11 +38,10 @@ class GameBoard:
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
 
-
-    #changing the value in the board to 1 if bomb
+    #changing the value in the board to 9 if bomb
     for bombs in bomb_list:
         divRem = divmod(bombs, 16)
-        board[divRem[0]][divRem[1]] = 1
+        board[divRem[0]][divRem[1]] = 9
 
     def __init__(self, rows, columns, width, height):
         self.rows = rows
@@ -49,6 +50,35 @@ class GameBoard:
         self.height = height
         self.squares = [[Square(self.board[i][j], i, j) 
             for j in range(columns)] for i in range(rows)]
+        # setting the number for each square
+        for i in range(rows):
+            for j in range(columns):
+                if (self.board[i][j] == 9):
+                    #check square directly left of bomb
+                    if (j - 1 >= 0) and (self.board[i][j-1] != 9):
+                        self.squares[i][j-1].number+= 1
+                    #check square directly right of bomb
+                    if (j + 1 <= 15) and (self.board[i][j+1] != 9):
+                        self.squares[i][j+1].number+= 1
+                    #check square directly above bomb
+                    if (i - 1 >= 0) and (self.board[i-1][j] != 9):
+                        self.squares[i-1][j].number+= 1
+                    #check square directly below bomb
+                    if (i + 1 <= 15) and (self.board[i+1][j] != 9):
+                        self.squares[i+1][j].number+= 1
+                    #check square left up of bomb
+                    if (j - 1 >= 0) and (i - 1 >= 0) and (self.board[i-1][j-1] != 9):
+                        self.squares[i-1][j-1].number+= 1
+                    #check square left down of bomb
+                    if (j - 1 >= 0) and (i + 1 <= 15) and (self.board[i+1][j-1] != 9):
+                        self.squares[i+1][j-1].number+= 1
+                    #check square right up of bomb
+                    if (j + 1 <= 15) and (i - 1 >= 0) and (self.board[i-1][j+1] != 9):
+                        self.squares[i-1][j+1].number+= 1
+                    #check square right down of bomb
+                    if (j + 1 <= 15) and (i + 1 <= 15) and (self.board[i+1][j+1] != 9):
+                        self.squares[i+1][j+1].number+= 1                    
+
     
     def leftClick(self, width, height):
         #finds the column and row
@@ -62,10 +92,11 @@ class GameBoard:
 
         # if ((findingCol > 16) or (findingRow > 16)):
             
-        if (self.board[findingRow][findingCol] == 1):
+        if (self.board[findingRow][findingCol] == 9):
             print("BOMB!")
         else:
             print("not a bomb!")
+        print(self.squares[findingRow][findingCol].number)
 
     def rightClick(self, width, height):
         if (WINDOW.get_height() > WINDOW.get_width()):
@@ -83,7 +114,7 @@ class GameBoard:
         else:
             self.squares[findingRow][findingCol].flag = False
             print(self.squares[findingRow][findingCol].flag)
-        print("whew")
+
 
 
 
@@ -94,6 +125,8 @@ class Square:
         self.row = row
         self.col = col
         self.flag = False
+        self.number = 0
+        self.bomb = False
 
 
     def location():
@@ -119,6 +152,8 @@ class Square:
 
 
 
+
+
 WIDTH, HEIGHT = 800, 1000
 size = [WIDTH, HEIGHT]
 #WINDOW = pygame.display.set_mode(size, pygame.RESIZABLE)
@@ -136,6 +171,22 @@ FLAG_IMAGE = pygame.image.load(os.path.join('Assets', 'flag_icon.png'))
 BOMB = pygame.transform.scale(BOMB_IMAGE, (BOX_DIM, BOX_DIM))
 FLAG = pygame.transform.scale(FLAG_IMAGE, (BOX_DIM, BOX_DIM))
 
+ONE = (0, 0, 255)
+TWO = (0, 128, 0)
+THREE = (255, 0, 0)
+FOUR = (128, 0, 128)
+FIVE = (128, 0, 0)
+SIX = (64, 224, 208)
+SEVEN = (0, 0, 0)
+EIGHT = (255, 255, 0)
+
+
+def numberGen(text, color):
+    font = pygame.font.SysFont("comicsans", 50)
+    number = font.render(str(text), 1, color)
+    return number
+
+
 def draw_window(width, height, board, gameboard):
     WINDOW.fill(GRAY)
     for rows in range(16):
@@ -149,11 +200,36 @@ def draw_window(width, height, board, gameboard):
                 pygame.draw.rect(WINDOW, BLACK, ((WINDOW.get_width()/DIM)*rows, (WINDOW.get_width()/DIM)*cols, 
                     (WINDOW.get_width()/DIM), (WINDOW.get_width()/DIM)), 2)
             #Places the bombs
-            if (board[rows][cols] == 1):
+            if (board[rows][cols] == 9):
                 WINDOW.blit(BOMB, (12.5+50*cols, 12.5+50*rows))
             #Places the flags
             if (gameboard.squares[rows][cols].flag == True):
                 WINDOW.blit(FLAG, (12.5+50*cols, 12.5+50*rows))
+            if (gameboard.squares[rows][cols].number != 0):
+                if (gameboard.squares[rows][cols].number == 1):
+                    text = numberGen(1, ONE)
+                    WINDOW.blit(text, (14.5+50*cols, 12.5+50*rows))
+                elif (gameboard.squares[rows][cols].number == 2):
+                    text = numberGen(2, TWO)
+                    WINDOW.blit(text, (14.5+50*cols, 12.5+50*rows))
+                elif (gameboard.squares[rows][cols].number == 3):
+                    text = numberGen(3, THREE)
+                    WINDOW.blit(text, (14.5+50*cols, 12.5+50*rows))  
+                elif (gameboard.squares[rows][cols].number == 4):
+                    text = numberGen(4, FOUR)
+                    WINDOW.blit(text, (14.5+50*cols, 12.5+50*rows))
+                elif (gameboard.squares[rows][cols].number == 5):
+                    text = numberGen(5, FIVE)
+                    WINDOW.blit(text, (14.5+50*cols, 12.5+50*rows))  
+                elif (gameboard.squares[rows][cols].number == 6):
+                    text = numberGen(6, SIX)
+                    WINDOW.blit(text, (14.5+50*cols, 12.5+50*rows))  
+                elif (gameboard.squares[rows][cols].number == 7):
+                    text = numberGen(7, SEVEN)
+                    WINDOW.blit(text, (14.5+50*cols, 12.5+50*rows))     
+                elif (gameboard.squares[rows][cols].number == 8):
+                    text = numberGen(8, EIGHT)
+                    WINDOW.blit(text, (14.5+50*cols, 12.5+50*rows))                                                
     pygame.display.update()
 
 
