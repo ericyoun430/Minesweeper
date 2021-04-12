@@ -91,15 +91,16 @@ class GameBoard:
         print(self.board)
 
         # if ((findingCol > 16) or (findingRow > 16)):
-        if (self.squares[findingRow][findingCol].cover == True):
-            self.squares[findingRow][findingCol].cover = False
+        if (self.squares[findingRow][findingCol].flag == False):
+            if (self.squares[findingRow][findingCol].cover == True):
+                self.squares[findingRow][findingCol].cover = False
 
-        if (self.board[findingRow][findingCol] == 9):
-            self.squares[findingRow][findingCol].win = False
-            print("BOMB!")
-        else:
-            print("not a bomb!")
-        print(self.squares[findingRow][findingCol].number)
+            if (self.board[findingRow][findingCol] == 9):
+                self.squares[findingRow][findingCol].win = False
+                print("BOMB!")
+            else:
+                print("not a bomb!")
+            print(self.squares[findingRow][findingCol].number)
 
 
     def rightClick(self, width, height):
@@ -201,6 +202,7 @@ def removeCover(gameboard):
     for rows in range(16):
         for cols in range(16):
             gameboard.squares[rows][cols].cover = False
+            gameboard.squares[rows][cols].flag = False
             if (gameboard.board[rows][cols] == 9):
                 gameboard.squares[rows][cols].win = False
 
@@ -245,9 +247,6 @@ def draw_window(width, height, board, gameboard):
                 elif (gameboard.squares[rows][cols].number == 8):
                     text = numberGen(8, EIGHT)
                     WINDOW.blit(text, (14.5+50*cols, 12.5+50*rows)) 
-            #Places the flags
-            if (gameboard.squares[rows][cols].flag == True):
-                WINDOW.blit(FLAG, (12.5+50*cols, 12.5+50*rows))  
 
             #hit bomb
             if (gameboard.squares[rows][cols].win == False):
@@ -256,7 +255,11 @@ def draw_window(width, height, board, gameboard):
 
             #COVERS
             if (gameboard.squares[rows][cols].cover == True):
-                WINDOW.blit(COVER, (12.5+50*cols, 12.5+50*rows))               
+                WINDOW.blit(COVER, (12.5+50*cols, 12.5+50*rows))
+
+            #Places the flags
+            if (gameboard.squares[rows][cols].flag == True):
+                WINDOW.blit(FLAG, (12.5+50*cols, 12.5+50*rows))                 
     pygame.display.update()
 
 
