@@ -91,12 +91,16 @@ class GameBoard:
         print(self.board)
 
         # if ((findingCol > 16) or (findingRow > 16)):
-            
+        if (self.squares[findingRow][findingCol].cover == True):
+            self.squares[findingRow][findingCol].cover = False
+
         if (self.board[findingRow][findingCol] == 9):
+            self.squares[findingRow][findingCol].win = False
             print("BOMB!")
         else:
             print("not a bomb!")
         print(self.squares[findingRow][findingCol].number)
+
 
     def rightClick(self, width, height):
         if (WINDOW.get_height() > WINDOW.get_width()):
@@ -121,12 +125,14 @@ class GameBoard:
 class Square:
 
     def __init__(self, value, row, col):
+        self.win = True
         self.value = value
         self.row = row
         self.col = col
         self.flag = False
         self.number = 0
         self.bomb = False
+        self.cover = True
 
 
     def location():
@@ -158,6 +164,7 @@ WIDTH, HEIGHT = 800, 1000
 size = [WIDTH, HEIGHT]
 #WINDOW = pygame.display.set_mode(size, pygame.RESIZABLE)
 WINDOW = pygame.display.set_mode(size)
+COVER = pygame.display.set_mode(size)
 pygame.display.set_caption("Minesweeper!")
 
 GRAY = (128, 128, 128)
@@ -170,6 +177,10 @@ BOMB_IMAGE = pygame.image.load(os.path.join('Assets', 'bomb.png'))
 FLAG_IMAGE = pygame.image.load(os.path.join('Assets', 'flag_icon.png'))
 BOMB = pygame.transform.scale(BOMB_IMAGE, (BOX_DIM, BOX_DIM))
 FLAG = pygame.transform.scale(FLAG_IMAGE, (BOX_DIM, BOX_DIM))
+COVER_IMAGE = pygame.image.load(os.path.join('Assets', 'Capture.PNG'))
+COVER = pygame.transform.scale(COVER_IMAGE, (BOX_DIM, BOX_DIM))
+LOSE_IMAGE = pygame.image.load(os.path.join('Assets', 'x.PNG'))
+LOSE = pygame.transform.scale(LOSE_IMAGE, (BOX_DIM, BOX_DIM))
 
 ONE = (0, 0, 255)
 TWO = (0, 128, 0)
@@ -186,6 +197,12 @@ def numberGen(text, color):
     number = font.render(str(text), 1, color)
     return number
 
+def removeCover(gameboard):
+    for rows in range(16):
+        for cols in range(16):
+            gameboard.squares[rows][cols].cover = False
+            if (gameboard.board[rows][cols] == 9):
+                gameboard.squares[rows][cols].win = False
 
 def draw_window(width, height, board, gameboard):
     WINDOW.fill(GRAY)
@@ -202,9 +219,7 @@ def draw_window(width, height, board, gameboard):
             #Places the bombs
             if (board[rows][cols] == 9):
                 WINDOW.blit(BOMB, (12.5+50*cols, 12.5+50*rows))
-            #Places the flags
-            if (gameboard.squares[rows][cols].flag == True):
-                WINDOW.blit(FLAG, (12.5+50*cols, 12.5+50*rows))
+            #Place the numbers
             if (gameboard.squares[rows][cols].number != 0):
                 if (gameboard.squares[rows][cols].number == 1):
                     text = numberGen(1, ONE)
@@ -229,7 +244,19 @@ def draw_window(width, height, board, gameboard):
                     WINDOW.blit(text, (14.5+50*cols, 12.5+50*rows))     
                 elif (gameboard.squares[rows][cols].number == 8):
                     text = numberGen(8, EIGHT)
-                    WINDOW.blit(text, (14.5+50*cols, 12.5+50*rows))                                                
+                    WINDOW.blit(text, (14.5+50*cols, 12.5+50*rows)) 
+            #Places the flags
+            if (gameboard.squares[rows][cols].flag == True):
+                WINDOW.blit(FLAG, (12.5+50*cols, 12.5+50*rows))  
+
+            #hit bomb
+            if (gameboard.squares[rows][cols].win == False):
+                WINDOW.blit(LOSE, (12.5+50*cols, 12.5+50*rows))
+                removeCover(gameboard)
+
+            #COVERS
+            if (gameboard.squares[rows][cols].cover == True):
+                WINDOW.blit(COVER, (12.5+50*cols, 12.5+50*rows))               
     pygame.display.update()
 
 
@@ -250,6 +277,7 @@ def main():
                     #left MOUSE BUTTON
                     pos = event.pos
                     clicked = gameBoard.leftClick(pos[0], pos[1])
+
                 elif event.button == 3:
                     #RIGHT MOUSE BUTTON
                     pos = event.pos
