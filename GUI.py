@@ -7,19 +7,19 @@ pygame.font.init()
 
 
 class GameBoard:
-    #40 bomb 16x16 game of minesweeper
+    # #40 bomb 16x16 game of minesweeper
 
-    bomb_list = []
+    # bomb_list = []
     
-    #randomly assigning grid placements that will have a bomb
-    for i in range(40):
-        random_val = random.randint(0, 255)
+    # #randomly assigning grid placements that will have a bomb
+    # for i in range(self.bombs):
+    #     random_val = random.randint(0, 255)
         
-        #making sure the bombs aren't on the same square
-        while random_val in bomb_list:
-            random_val = random.randint(0, 255)
+    #     #making sure the bombs aren't on the same square
+    #     while random_val in bomb_list:
+    #         random_val = random.randint(0, 255)
 
-        bomb_list.append(random_val)
+    #     bomb_list.append(random_val)
 
     board = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -38,12 +38,31 @@ class GameBoard:
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
 
-    #changing the value in the board to 9 if bomb
-    for bombs in bomb_list:
-        divRem = divmod(bombs, 16)
-        board[divRem[0]][divRem[1]] = 9
+    # #changing the value in the board to 9 if bomb
+    # for num_bombs in bomb_list:
+    #     divRem = divmod(num_bombs, 16)
+    #     board[divRem[0]][divRem[1]] = 9
 
-    def __init__(self, rows, columns, width, height):
+    def __init__(self, rows, columns, width, height, bombs):
+        bomb_list = []
+        
+        #randomly assigning grid placements that will have a bomb
+        for i in range(bombs):
+            random_val = random.randint(0, 255)
+            
+            #making sure the bombs aren't on the same square
+            while random_val in bomb_list:
+                random_val = random.randint(0, 255)
+
+            bomb_list.append(random_val)
+
+        #changing the value in the board to 9 if bomb
+        for num_bombs in bomb_list:
+            divRem = divmod(num_bombs, 16)
+            self.board[divRem[0]][divRem[1]] = 9
+        self.all_flags = 0
+        self.you_won = False
+        self.bombs = bombs
         self.rows = rows
         self.columns = columns
         self.width = width
@@ -91,16 +110,70 @@ class GameBoard:
         print(self.board)
 
         # if ((findingCol > 16) or (findingRow > 16)):
+        # If there is no flag
         if (self.squares[findingRow][findingCol].flag == False):
+            #If there is a cover
             if (self.squares[findingRow][findingCol].cover == True):
                 self.squares[findingRow][findingCol].cover = False
+                #If the click is a bomb you lose
+                if (self.board[findingRow][findingCol] == 9):
+                    self.squares[findingRow][findingCol].win = False
+                else:
+                    print((findingRow, findingCol))
+                    #self.squares[findingRow][findingCol].recurse = False
+                    self.coverAlgo(findingRow, findingCol) 
 
-            if (self.board[findingRow][findingCol] == 9):
-                self.squares[findingRow][findingCol].win = False
-                print("BOMB!")
-            else:
-                print("not a bomb!")
-            print(self.squares[findingRow][findingCol].number)
+
+    #algorithm that will uncover the squares that need to be uncovered in minesweeper
+    def coverAlgo(self, row, column):
+        print("hi")
+        self.squares[row][column].recurse = True
+        if (self.squares[row][column].number != 0):
+            print("uncover")
+            self.squares[row][column].cover = False
+            return
+        elif (self.squares[row][column].number == 0):
+            self.squares[row][column].cover = False
+            #left up
+            if (column - 1 >= 0) and (row - 1 >= 0):
+                if (self.squares[row-1][column-1].recurse != True):
+                    self.squares[row-1][column-1].recurse = True
+                    self.coverAlgo(row-1, column-1)
+            #left down
+            if (column - 1 >= 0) and (row + 1 <= 15):
+                if (self.squares[row+1][column-1].recurse != True):
+                    self.squares[row+1][column-1].recurse = True                
+                    self.coverAlgo(row+1, column-1)
+            #right up
+            if (column + 1 <= 15) and (row - 1 >= 0):
+                if (self.squares[row-1][column+1].recurse != True):
+                    self.squares[row-1][column+1].recurse = True                
+                    self.coverAlgo(row-1, column+1)
+            #right down
+            if (column +1 <= 15) and (row + 1 <= 15):
+                if (self.squares[row+1][column+1].recurse != True):
+                    self.squares[row+1][column+1].recurse = True                
+                    self.coverAlgo(row+1, column+1)
+            #direct left
+            if (column - 1 >= 0):
+                if (self.squares[row][column-1].recurse != True):
+                    self.squares[row][column-1].recurse = True                
+                    self.coverAlgo(row, column-1)
+            #direct right
+            if (column + 1 <= 15):
+                if (self.squares[row][column+1].recurse != True):
+                    self.squares[row][column+1].recurse = True                
+                    self.coverAlgo(row, column+1)
+            #direct up
+            if (row - 1 >= 0):
+                if (self.squares[row-1][column].recurse != True):
+                    self.squares[row-1][column].recurse = True                
+                    self.coverAlgo(row-1, column)
+            #direct down
+            if (row + 1 <= 15):
+                if (self.squares[row+1][column].recurse != True):
+                    self.squares[row+1][column].recurse = True                
+                    self.coverAlgo(row+1, column)
 
 
     def rightClick(self, width, height):
@@ -115,10 +188,21 @@ class GameBoard:
 
         if not self.squares[findingRow][findingCol].flag:
             self.squares[findingRow][findingCol].flag = True
+            self.all_flags += 1
             print(self.squares[findingRow][findingCol].flag)
         else:
             self.squares[findingRow][findingCol].flag = False
+            self.all_flags -= 1
             print(self.squares[findingRow][findingCol].flag)
+
+    # def finished(self):
+    #     counter = 0 
+    #     for row in range(16):
+    #         for col in range(16):
+    #             if (self.squares[row][col].cover == True):
+    #                 counter += 1
+    #     if (counter == 40):
+    #         return True
 
 
 
@@ -134,6 +218,7 @@ class Square:
         self.number = 0
         self.bomb = False
         self.cover = True
+        self.recurse = False
 
 
     def location():
@@ -182,6 +267,8 @@ COVER_IMAGE = pygame.image.load(os.path.join('Assets', 'Capture.PNG'))
 COVER = pygame.transform.scale(COVER_IMAGE, (BOX_DIM, BOX_DIM))
 LOSE_IMAGE = pygame.image.load(os.path.join('Assets', 'x.PNG'))
 LOSE = pygame.transform.scale(LOSE_IMAGE, (BOX_DIM, BOX_DIM))
+WIN_IMAGE = pygame.image.load(os.path.join('Assets', 'Win.jpg'))
+WIN = pygame.transform.scale(WIN_IMAGE, (200, 200))
 
 ONE = (0, 0, 255)
 TWO = (0, 128, 0)
@@ -191,6 +278,11 @@ FIVE = (128, 0, 0)
 SIX = (64, 224, 208)
 SEVEN = (0, 0, 0)
 EIGHT = (255, 255, 0)
+
+CLOCK = pygame.time.Clock()
+START_TIME = time.time()
+PAUSED = False
+FONT = pygame.font.SysFont("Comic Sans", 32)
 
 
 def numberGen(text, color):
@@ -206,8 +298,19 @@ def removeCover(gameboard):
             if (gameboard.board[rows][cols] == 9):
                 gameboard.squares[rows][cols].win = False
 
-def draw_window(width, height, board, gameboard):
+def finished(gameboard):
+    counter = 0 
+    for row in range(16):
+        for col in range(16):
+            if (gameboard.squares[row][col].cover == True):
+                counter += 1
+    if (counter == gameboard.bombs):
+        gameboard.you_won = True
+        return True
+
+def draw_window(width, height, board, gameboard, timer):
     WINDOW.fill(GRAY)
+    total_flags = 0
     for rows in range(16):
         for cols in range(16):
             #Creates gridlines
@@ -259,14 +362,23 @@ def draw_window(width, height, board, gameboard):
 
             #Places the flags
             if (gameboard.squares[rows][cols].flag == True):
-                WINDOW.blit(FLAG, (12.5+50*cols, 12.5+50*rows))                 
+                WINDOW.blit(FLAG, (12.5+50*cols, 12.5+50*rows))
+    #if win 
+    if (finished(gameboard) == True):
+        WINDOW.blit(WIN, (300, 350))  
+
+    flag_count = FONT.render(str(gameboard.all_flags), 1, (0, 0, 0))
+    WINDOW.blit(flag_count, (100, 900))
+
+    #Timer
+    WINDOW.blit(timer, (700, 900))
     pygame.display.update()
 
 
 def main():
     #WINDOW = pygame.display.set_mode(size, pygame.RESIZABLE)
     WINDOW = pygame.display.set_mode(size)
-    gameBoard = GameBoard(16, 16, WIDTH, HEIGHT)
+    gameBoard = GameBoard(16, 16, WIDTH, HEIGHT, 1)
     board = gameBoard.board
     clock = pygame.time.Clock()
     on = True
@@ -288,7 +400,14 @@ def main():
             if event.type == pygame.VIDEORESIZE:
                 old_window = WINDOW
                 WINDOW = pygame.display.set_mode((event.w, event.h), pygame.RESIZABLE)
-        draw_window(WIDTH, HEIGHT, board, gameBoard)
+
+
+
+        if not gameBoard.you_won:
+            timer = time.time() - START_TIME
+            timer_text = FONT.render(str(int(timer)), 1, (0, 0, 0))
+        draw_window(WIDTH, HEIGHT, board, gameBoard, timer_text)
+        
 
 if __name__ == '__main__':
     main()
