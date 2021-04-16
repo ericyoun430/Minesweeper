@@ -37,8 +37,6 @@ class GameBoard:
         for num_bombs in bomb_list:
 
             divRem = divmod(num_bombs, columns)
-            
-            print(divRem)
             self.board[divRem[0]][divRem[1]] = 9
 
 
@@ -91,18 +89,31 @@ class GameBoard:
         else:
             findingCol = math.floor(width/(WINDOW.get_height()/self.rows))
             findingRow = math.floor(height/(WINDOW.get_height()/self.rows))
-
+        if (findingCol < gameboard.columns) and (findingRow < gameboard.rows):
         # If there is no flag
-        if (self.squares[findingRow][findingCol].flag == False):
-            #If there is a cover
-            if (self.squares[findingRow][findingCol].cover == True):
-                self.squares[findingRow][findingCol].cover = False
-                #If the click is a bomb you lose
-                if (self.board[findingRow][findingCol] == 9):
-                    self.squares[findingRow][findingCol].win = False
-                    self.clicked_bomb = True
-                else:
-                    self.coverAlgo(findingRow, findingCol, gameboard) 
+            if (self.squares[findingRow][findingCol].flag == False):
+                #If there is a cover
+                if (self.squares[findingRow][findingCol].cover == True):
+                    self.squares[findingRow][findingCol].cover = False
+                    #If the click is a bomb you lose
+                    if (self.board[findingRow][findingCol] == 9):
+                        self.squares[findingRow][findingCol].win = False
+                        self.clicked_bomb = True
+                    else:
+                        self.coverAlgo(findingRow, findingCol, gameboard) 
+
+
+        # # If there is no flag
+        # if (self.squares[findingRow][findingCol].flag == False):
+        #     #If there is a cover
+        #     if (self.squares[findingRow][findingCol].cover == True):
+        #         self.squares[findingRow][findingCol].cover = False
+        #         #If the click is a bomb you lose
+        #         if (self.board[findingRow][findingCol] == 9):
+        #             self.squares[findingRow][findingCol].win = False
+        #             self.clicked_bomb = True
+        #         else:
+        #             self.coverAlgo(findingRow, findingCol, gameboard) 
 
 
     #algorithm that will uncover the squares that need to be uncovered in minesweeper
@@ -156,6 +167,7 @@ class GameBoard:
 
 
     def rightClick(self, width, height, gameboard):
+
         if (WINDOW.get_height() > WINDOW.get_width()):
             findingCol = math.floor(width/(WINDOW.get_width()/self.columns))
             findingRow = math.floor(height/(WINDOW.get_width()/self.columns))
@@ -163,12 +175,13 @@ class GameBoard:
             findingCol = math.floor(width/(WINDOW.get_height()/self.rows))
             findingRow = math.floor(height/(WINDOW.get_height()/self.rows))
 
-        if not self.squares[findingRow][findingCol].flag:
-            self.squares[findingRow][findingCol].flag = True
-            self.all_flags += 1
-        else:
-            self.squares[findingRow][findingCol].flag = False
-            self.all_flags -= 1
+        if (findingCol < gameboard.columns) and (findingRow < gameboard.rows):
+            if not self.squares[findingRow][findingCol].flag:
+                self.squares[findingRow][findingCol].flag = True
+                self.all_flags += 1
+            else:
+                self.squares[findingRow][findingCol].flag = False
+                self.all_flags -= 1
 
 class Square:
     def __init__(self, value, row, col):
@@ -357,7 +370,6 @@ def start():
                 if event.button == 1:
                     #left MOUSE BUTTON
                     pos = event.pos
-                    print(pos)
                     if ((pos[0] < ((WIDTH/2) + 25)) and (pos[0] > ((WIDTH/2) - 25))):
                         if (pos[1] > HEIGHT - 75) and (pos[1] < HEIGHT - 25):
                             main()
