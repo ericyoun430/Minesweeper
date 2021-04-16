@@ -4,6 +4,7 @@ import random
 import math
 import time
 import sys
+import pygame_menu
 pygame.font.init()
 
 
@@ -37,6 +38,7 @@ class GameBoard:
             divRem = divmod(num_bombs, columns)
             print(divRem)
             self.board[divRem[0]][divRem[1]] = 9
+        self.clicked_bomb = False
         self.all_flags = 0
         self.you_won = False
         self.bombs = bombs
@@ -46,6 +48,7 @@ class GameBoard:
         self.height = height
         self.squares = [[Square(self.board[i][j], i, j) 
             for j in range(columns)] for i in range(rows)]
+
         # setting the number for each square
         for i in range(rows):
             for j in range(columns):
@@ -94,6 +97,7 @@ class GameBoard:
                 #If the click is a bomb you lose
                 if (self.board[findingRow][findingCol] == 9):
                     self.squares[findingRow][findingCol].win = False
+                    self.clicked_bomb = True
                 else:
                     #self.squares[findingRow][findingCol].recurse = False
                     self.coverAlgo(findingRow, findingCol, gameboard) 
@@ -201,29 +205,32 @@ size = [WIDTH, HEIGHT]
 WINDOW = pygame.display.set_mode(size)
 pygame.display.set_caption("Minesweeper!")
 
-BOMBS = 20
-ROWS = 32
-COLS = 32
-
+# BOMBS = 16
+# COLS = 16
+# ROWS = 16
 
 GRAY = (128, 128, 128)
 BLACK = (0, 0, 0)
 FPS = 60
-BOX_DIM = int((WIDTH/COLS)/2)
-COVER_DIM = int((WIDTH/COLS)/1.5)
-DIM = 16
+# BOX_DIM = int((WIDTH/COLS)/2)
+# COVER_DIM = int((WIDTH/COLS)/1.5)
+# DIM = 16
 
 
-BOMB_IMAGE = pygame.image.load(os.path.join('Assets', 'bomb.png'))
-FLAG_IMAGE = pygame.image.load(os.path.join('Assets', 'flag_icon.png'))
-BOMB = pygame.transform.scale(BOMB_IMAGE, (BOX_DIM, BOX_DIM))
-FLAG = pygame.transform.scale(FLAG_IMAGE, (BOX_DIM, BOX_DIM))
-COVER_IMAGE = pygame.image.load(os.path.join('Assets', 'Capture.PNG'))
-COVER = pygame.transform.scale(COVER_IMAGE, (COVER_DIM, COVER_DIM))
-LOSE_IMAGE = pygame.image.load(os.path.join('Assets', 'x.PNG'))
-LOSE = pygame.transform.scale(LOSE_IMAGE, (BOX_DIM, BOX_DIM))
-WIN_IMAGE = pygame.image.load(os.path.join('Assets', 'Win.jpg'))
-WIN = pygame.transform.scale(WIN_IMAGE, (200, 200))
+# BOMB_IMAGE = pygame.image.load(os.path.join('Assets', 'bomb.png'))
+# FLAG_IMAGE = pygame.image.load(os.path.join('Assets', 'flag_icon.png'))
+# BOMB = pygame.transform.scale(BOMB_IMAGE, (BOX_DIM, BOX_DIM))
+# FLAG = pygame.transform.scale(FLAG_IMAGE, (BOX_DIM, BOX_DIM))
+# COVER_IMAGE = pygame.image.load(os.path.join('Assets', 'Capture.PNG'))
+# COVER = pygame.transform.scale(COVER_IMAGE, (COVER_DIM, COVER_DIM))
+# LOSE_IMAGE = pygame.image.load(os.path.join('Assets', 'x.PNG'))
+# LOSE = pygame.transform.scale(LOSE_IMAGE, (BOX_DIM, BOX_DIM))
+# WIN_IMAGE = pygame.image.load(os.path.join('Assets', 'Win.jpg'))
+# WIN_PIC = pygame.transform.scale(WIN_IMAGE, (200, 200))
+# SUNGLASSES_IMAGE = pygame.image.load(os.path.join('Assets', 'happy_smile.jpg'))
+# SUNGLASSES = pygame.transform.scale(SUNGLASSES_IMAGE, (50, 50))
+# DEAD_IMAGE = pygame.image.load(os.path.join('Assets', 'dead_smile.png'))
+# DEAD = pygame.transform.scale(DEAD_IMAGE, (50, 50))
 
 ONE = (0, 0, 255)
 TWO = (0, 128, 0)
@@ -323,7 +330,13 @@ def draw_window(width, height, board, gameboard, timer):
                 WINDOW.blit(FLAG, (start_dist+square_dist*cols, start_dist+square_dist*rows))
     #if win 
     if (finished(gameboard) == True):
-        WINDOW.blit(WIN, ((WIDTH/2) - 100, WIDTH/2))  
+        WINDOW.blit(WIN_PIC, ((WIDTH/2) - 100, WIDTH/2))  
+
+    #reset button change
+    if (gameboard.clicked_bomb == True):
+        WINDOW.blit(DEAD, ((WIDTH/2) - 25, HEIGHT - 75))
+    else:
+        WINDOW.blit(SUNGLASSES, ((WIDTH/2) - 25, HEIGHT - 75))
 
     flag_count = FONT.render(str(gameboard.all_flags), 1, (0, 0, 0))
     WINDOW.blit(flag_count, (WIDTH - (WIDTH - 100), HEIGHT - 100))
@@ -333,9 +346,52 @@ def draw_window(width, height, board, gameboard, timer):
     pygame.display.update()
 
 
-def main():
-    #WINDOW = pygame.display.set_mode(size, pygame.RESIZABLE)
-    WINDOW = pygame.display.set_mode(size)
+
+
+
+
+
+
+def set_difficulty(text, bombs, rows, columns):
+    global BOMBS
+    global ROWS
+    global COLS
+    global COVER
+    global BOMB
+    global FLAG
+    global LOSE
+    global WIN_PIC
+    global SUNGLASSES
+    global DEAD
+    global DIM 
+
+    BOMBS = bombs
+    ROWS = rows
+    COLS = columns
+
+
+    BOX_DIM = int((WIDTH/COLS)/2)
+    COVER_DIM = int((WIDTH/COLS)/1.5)
+    DIM = 16
+
+
+    bomb_image = pygame.image.load(os.path.join('Assets', 'bomb.png'))
+    flag_image = pygame.image.load(os.path.join('Assets', 'flag_icon.png'))
+    BOMB = pygame.transform.scale(bomb_image, (BOX_DIM, BOX_DIM))
+    FLAG = pygame.transform.scale(flag_image, (BOX_DIM, BOX_DIM))
+    cover_image = pygame.image.load(os.path.join('Assets', 'Capture.PNG'))
+    COVER = pygame.transform.scale(cover_image, (COVER_DIM, COVER_DIM))
+    lose_image = pygame.image.load(os.path.join('Assets', 'x.PNG'))
+    LOSE = pygame.transform.scale(lose_image, (BOX_DIM, BOX_DIM))
+    win_image = pygame.image.load(os.path.join('Assets', 'Win.jpg'))
+    WIN_PIC = pygame.transform.scale(win_image, (200, 200))
+    sunglasses_image = pygame.image.load(os.path.join('Assets', 'happy_smile.jpg'))
+    SUNGLASSES = pygame.transform.scale(sunglasses_image, (50, 50))
+    dead_image = pygame.image.load(os.path.join('Assets', 'dead_smile.png'))
+    DEAD = pygame.transform.scale(dead_image, (50, 50))
+    start()
+
+def start():
     gameBoard = GameBoard(ROWS, COLS, WIDTH, HEIGHT, BOMBS)
     board = gameBoard.board
     clock = pygame.time.Clock()
@@ -349,6 +405,10 @@ def main():
                 if event.button == 1:
                     #left MOUSE BUTTON
                     pos = event.pos
+                    print(pos)
+                    if ((pos[0] < ((WIDTH/2) + 25)) and (pos[0] > ((WIDTH/2) - 25))):
+                        if (pos[1] > HEIGHT - 75) and (pos[1] < HEIGHT - 25):
+                            start()
                     clicked = gameBoard.leftClick(pos[0], pos[1], gameBoard)
 
                 elif event.button == 3:
@@ -361,12 +421,60 @@ def main():
 
 
 
-        if not gameBoard.you_won:
+        if (gameBoard.you_won == False) and (gameBoard.clicked_bomb == False):
             timer = time.time() - START_TIME
             timer_text = FONT.render(str(int(timer)), 1, (0, 0, 0))
         draw_window(WIDTH, HEIGHT, board, gameBoard, timer_text)
+
+
+def main():
+    
+    WINDOW = pygame.display.set_mode(size)
+    menu = pygame_menu.Menu("Minesweeper", 500, 400)
+    menu.add.selector("Difficulty:", [("Easy", 10, 10, 10), ("Intermediate", 40, 16, 16),
+    ("Expert", 99, 16, 30)], onreturn = set_difficulty)
+    # menu.add.button('Easy', set_difficulty(10, 10, 10))
+    # menu.add.button('Intermediate', set_difficulty(40, 16, 16))
+    # menu.add.button('Expert', set_difficulty(99, 16, 30))
+    menu.mainloop(WINDOW)
+
+    #WINDOW = pygame.display.set_mode(size)
+    # gameBoard = GameBoard(ROWS, COLS, WIDTH, HEIGHT, BOMBS)
+    # board = gameBoard.board
+    # clock = pygame.time.Clock()
+    # on = True
+    # while on:
+    #     clock.tick(FPS)
+    #     for event in pygame.event.get():
+    #         if event.type == pygame.QUIT:
+    #             on = False
+    #         if event.type == pygame.MOUSEBUTTONDOWN:
+    #             if event.button == 1:
+    #                 #left MOUSE BUTTON
+    #                 pos = event.pos
+    #                 print(pos)
+    #                 if ((pos[0] < ((WIDTH/2) + 25)) and (pos[0] > ((WIDTH/2) - 25))):
+    #                     if (pos[1] > HEIGHT - 75) and (pos[1] < HEIGHT - 25):
+    #                         main()
+    #                 clicked = gameBoard.leftClick(pos[0], pos[1], gameBoard)
+
+    #             elif event.button == 3:
+    #                 #RIGHT MOUSE BUTTON
+    #                 pos = event.pos
+    #                 clicked = gameBoard.rightClick(pos[0], pos[1], gameBoard)
+    #         if event.type == pygame.VIDEORESIZE:
+    #             old_window = WINDOW
+    #             WINDOW = pygame.display.set_mode((event.w, event.h), pygame.RESIZABLE)
+
+
+
+    #     if (gameBoard.you_won == False) and (gameBoard.clicked_bomb == False):
+    #         timer = time.time() - START_TIME
+    #         timer_text = FONT.render(str(int(timer)), 1, (0, 0, 0))
+    #     draw_window(WIDTH, HEIGHT, board, gameBoard, timer_text)
         
 
 if __name__ == '__main__':
+    pygame.init()
     main()
     pygame.quit()
