@@ -201,7 +201,7 @@ class Square:
 
 
 
-WIDTH, HEIGHT = 800, 1000
+WIDTH, HEIGHT = 600, 800
 size = [WIDTH, HEIGHT]
 WINDOW = pygame.display.set_mode(size)
 pygame.display.set_caption("Minesweeper!")
