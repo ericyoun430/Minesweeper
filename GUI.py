@@ -177,8 +177,9 @@ class GameBoard:
 
         if (findingCol < gameboard.columns) and (findingRow < gameboard.rows):
             if not self.squares[findingRow][findingCol].flag:
-                self.squares[findingRow][findingCol].flag = True
-                self.all_flags += 1
+                if self.squares[findingRow][findingCol].cover:
+                    self.squares[findingRow][findingCol].flag = True
+                    self.all_flags += 1
             else:
                 self.squares[findingRow][findingCol].flag = False
                 self.all_flags -= 1
