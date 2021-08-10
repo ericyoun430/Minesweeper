@@ -102,20 +102,6 @@ class GameBoard:
                     else:
                         self.coverAlgo(findingRow, findingCol, gameboard) 
 
-
-        # # If there is no flag
-        # if (self.squares[findingRow][findingCol].flag == False):
-        #     #If there is a cover
-        #     if (self.squares[findingRow][findingCol].cover == True):
-        #         self.squares[findingRow][findingCol].cover = False
-        #         #If the click is a bomb you lose
-        #         if (self.board[findingRow][findingCol] == 9):
-        #             self.squares[findingRow][findingCol].win = False
-        #             self.clicked_bomb = True
-        #         else:
-        #             self.coverAlgo(findingRow, findingCol, gameboard) 
-
-
     #algorithm that will uncover the squares that need to be uncovered in minesweeper
     def coverAlgo(self, row, column, gameboard):
         self.squares[row][column].recurse = True
