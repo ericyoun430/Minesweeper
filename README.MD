@@ -1,4 +1,5 @@
 READ ME:
 
-Press return on the difficulty to set the difficulty. 
-To restart press the smile.
+First ever python project.
+
+WITH NEW PYGAME UPDATE, THE GAME DOES NOT VISUALLY WORK ANYMORE.
